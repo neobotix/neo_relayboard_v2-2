@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 
 		const rclcpp::Duration cycleTime = rclcpp::Clock().now() - cycleStartTime;
 
-		RCLCPP_INFO(nh->get_logger(), "cycleTime: %f", cycleTime.seconds());
+		// RCLCPP_INFO(nh->get_logger(), "cycleTime: %f", cycleTime.seconds());
 
 		// Check if to restart node in case of error
 		bool restart = false;

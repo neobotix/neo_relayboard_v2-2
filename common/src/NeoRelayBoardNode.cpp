@@ -134,8 +134,6 @@ int NeoRelayBoardNode::init()
 
 	// Battery
 
-
-
 	this->get_parameter("battery/serial_number", m_sBatterySerialNumber);
 	this->get_parameter("battery/location", m_sBatteryLocation);
 	this->get_parameter("battery/design_capacity", m_fBatteryDesignCapacity);
