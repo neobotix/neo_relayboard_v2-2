@@ -51,13 +51,13 @@ int main(int argc, char **argv)
 	// frequency of publishing states (cycle time)
 	rclcpp::Rate loop_rate(request_rate);
 
+	if (nh->init() != 0)
+			return 1;
 
 	while (rclcpp::ok())
 	{
 		// initialize node
-		if (nh->init() != 0)
-			return 1;
-
+		
 		const rclcpp::Time cycleStartTime = rclcpp::Clock().now();
 
 		// Communication

@@ -43,61 +43,42 @@ using std::placeholders::_2;
 
 NeoRelayBoardNode::NeoRelayBoardNode(): Node("neo_relayboard_node")
 {
+	// Declare Parameters for getting the data from the parameter server
+
     this->declare_parameter<std::string>("port", "random");
-    this->declare_parameter<std::string>("battery/serial_number", "fsdf");
-    this->declare_parameter<std::string>("battery/location", "dasd");
+    this->declare_parameter<std::string>("battery/serial_number", "random");
+    this->declare_parameter<std::string>("battery/location", "random");
     this->declare_parameter<float>("battery/design_capacity", 2.0);
     this->declare_parameter<int>("battery/chemistry", 3);
     this->declare_parameter<bool>("log", 0);
-	// Drives
 
-
-	for (int i = 0; i < 8; i++)
+    for (int i = 0; i < 8; ++i)
 	{
-		const std::string parent = "drive" + std::to_string(i + 2) + "/";		
-		this->declare_parameter<std::string>(parent+"joint_name", "sads");
+
+		const std::string parent = "drive" + std::to_string(i + 2) + ".";
+
+		this->declare_parameter(parent + "motor_active");
+		this->declare_parameter(parent + "homing_active");
+		this->declare_parameter(parent + "EncIncrPerRevMot");
+		this->declare_parameter(parent + "VelMeasFrqHz");
+		this->declare_parameter(parent + "GearRatio");
+		this->declare_parameter(parent + "BeltRatio");
+		this->declare_parameter(parent + "Sign");
+		this->declare_parameter(parent + "VelMaxEncIncrS");
+		this->declare_parameter(parent + "VelPModeEncIncrS");
+		this->declare_parameter(parent + "AccIncrS2");
+		this->declare_parameter(parent + "DecIncrS2");
+		this->declare_parameter(parent + "Modulo");
+		this->declare_parameter(parent+ "joint_name");
 
 		m_Drives[i].sName = "Joint999";
 	}
-	//----------------------------------------Init Publisher/Subscriber--------------------------------------------
 
-	// topics and subscriber which will allways get published
-	topicPub_isEmergencyStop = this->create_publisher<neo_msgs2::msg::EmergencyStopState>("emergency_stop_state", 1);
-	topicPub_RelayBoardState = this->create_publisher<neo_msgs2::msg::RelayBoardV2>("state", 1);
-	topicPub_BatteryState = this->create_publisher<sensor_msgs::msg::BatteryState>("battery_state", 1);
+	this->declare_parameter("motor_delay");
+	this->declare_parameter("trajectory_timeout");
 
-	// ---- Service Callbacks ---
-	this->srv_SetEMStop = this->create_service<neo_srvs2::srv::RelayBoardSetEMStop>("set_EMstop", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetEmStop, this, _1, _2));
-	this->srv_UnSetEMStop = this->create_service<neo_srvs2::srv::RelayBoardUnSetEMStop>("unset_EMstop", std::bind(&NeoRelayBoardNode::serviceRelayBoardUnSetEmStop, this, _1, _2));
-	this->srv_SetRelay = this->create_service<neo_srvs2::srv::RelayBoardSetRelay>("set_relay", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetRelay, this, _1, _2));
-	this->srv_StartCharging = this->create_service<std_srvs::srv::Empty>("start_charging", std::bind(&NeoRelayBoardNode::serviceStartCharging, this,_1,_2));
-	this->srv_StopCharging = this->create_service<std_srvs::srv::Empty>("stop_charging", std::bind(&NeoRelayBoardNode::serviceStopCharging, this,_1,_2));
-	this->srv_SetLCDMsg = this->create_service<neo_srvs2::srv::RelayBoardSetLCDMsg>("set_LCD_msg", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetLCDMsg, this, _1, _2));
-
-	if (m_iactive_motors != 0)
-	{
-		topicPub_drives = this->create_publisher<sensor_msgs::msg::JointState>("/drives/joint_states", 1);
-		topicSub_drives = this->create_subscription<trajectory_msgs::msg::JointTrajectory>("/drives/joint_trajectory", 1, std::bind(&NeoRelayBoardNode::getNewVelocitiesFomTopic, this,_1));
-	}
-
-	if (m_bIOBoardActive)
-	{
-		topicPub_IOBoard = this->create_publisher<neo_msgs2::msg::IOBoard>("/ioboard/data", 1);
-		this->srv_SetDigOut = this->create_service<neo_srvs2::srv::IOBoardSetDigOut>("/ioboard/set_digital_output", std::bind(&NeoRelayBoardNode::serviceIOBoardSetDigOut, this, _1, _2));
-	}
-
-	if (m_bUSBoardActive)
-	{
-		topicPub_usBoard = this->create_publisher<neo_msgs2::msg::USBoard>("/usboard/measurements", 1);
-
-		for (int i = 0; i < 16; ++i)
-		{
-			if(m_bUSBoardSensorActive[i]) {
-				topicPub_USRangeSensor[i] = this->create_publisher<sensor_msgs::msg::Range>("/usboard/sensor" + std::to_string(i + 1), 1);
-			}
-		}
-	}
-
+	this->get_parameter_or("motor_delay", m_tMotorDelay, 0.0);
+	this->get_parameter_or("trajectory_timeout", m_trajectory_timeout, 1.);
 
 }
 
@@ -108,17 +89,6 @@ NeoRelayBoardNode::~NeoRelayBoardNode()
 
 int NeoRelayBoardNode::init()
 {
-
-	//---------------------------------------- GET PARAMS -----------------------------------------------------------
-
-	std::cout << "                                                                     \n";
-	std::cout << "    NN    N  EEEEE   OOOOO   BBBBB    OOOOO   TTTTTTT  I  X   X      \n";
-	std::cout << "    N N   N  E      O     O  B    B  O     O     T     I   X X       \n";
-	std::cout << "    N  N  N  EEEEE  O     O  BBBBB   O     O     T     I    X        \n";
-	std::cout << "    N   N N  E      O     O  B    B  O     O     T     I   X X       \n";
-	std::cout << "    N    NN  EEEEE   OOOOO   BBBBB    OOOOO      T     I  X   X      \n";
-	std::cout << "                                                                     \n";
-
 	// Relayboard Config Parameter
 
 	if (this->has_parameter("port"))
@@ -131,6 +101,16 @@ int NeoRelayBoardNode::init()
 		RCLCPP_ERROR(this->get_logger(),"FAILED to load ComPort parameter from parameter server");
 		return 1;
 	}
+
+	std::cout << "                                                                     \n";
+	std::cout << "    NN    N  EEEEE   OOOOO   BBBBB    OOOOO   TTTTTTT  I  X   X      \n";
+	std::cout << "    N N   N  E      O     O  B    B  O     O     T     I   X X       \n";
+	std::cout << "    N  N  N  EEEEE  O     O  BBBBB   O     O     T     I    X        \n";
+	std::cout << "    N   N N  E      O     O  B    B  O     O     T     I   X X       \n";
+	std::cout << "    N    NN  EEEEE   OOOOO   BBBBB    OOOOO      T     I  X   X      \n";
+	std::cout << "                                                                     \n";
+	
+	//---------------------------------------- GET PARAMS -----------------------------------------------------------
 
 	// Battery
 
@@ -168,10 +148,10 @@ int NeoRelayBoardNode::init()
 	for (int i = 0; i < 8; ++i)
 	{
 
-		const std::string parent = "drive" + std::to_string(i + 2) + "/";
+		const std::string parent = "drive" + std::to_string(i + 2) + ".";
 
-		this->get_parameter_or(parent + "motor_active", m_Drives[i].bmotor_active, false);
-		this->get_parameter_or(parent + "homing_active", m_Drives[i].bhoming_active, false);
+		this->get_parameter(parent + "motor_active", m_Drives[i].bmotor_active);
+		this->get_parameter(parent + "homing_active", m_Drives[i].bhoming_active);
 		this->get_parameter_or(parent + "EncIncrPerRevMot", m_Drives[i].iEncIncrPerRevMot, 0);
 		this->get_parameter_or(parent + "VelMeasFrqHz", m_Drives[i].dVelMeasFrqHz, 0.0);
 		this->get_parameter_or(parent + "GearRatio", m_Drives[i].dGearRatio, 0.0);
@@ -257,7 +237,7 @@ int NeoRelayBoardNode::init()
 		m_iext_hardware += 2;
 
 	RCLCPP_INFO(this->get_logger(),"Parameters loaded");
-
+	std::cout<<m_imotor_count<<std::endl;
 	//----------------------------------------OPEN COMPORT---------------------------------------------------------
 
 	m_SerRelayBoard = new RelayBoardClient();
@@ -332,6 +312,44 @@ int NeoRelayBoardNode::init()
 	RCLCPP_INFO(this->get_logger(),"IOBoard: Active %s     Available %s", m_bIOBoardActive ? "true" : "false", m_SerRelayBoard->getIOBoardAvailable() ? "true" : "false");
 	RCLCPP_INFO(this->get_logger(),"USBoard: Active %s     Available %s", m_bUSBoardActive ? "true" : "false", m_SerRelayBoard->getUSBoardAvailable() ? "true" : "false");
 
+	//----------------------------------------Init Publisher/Subscriber--------------------------------------------
+
+	// topics and subscriber which will allways get published
+	topicPub_isEmergencyStop = this->create_publisher<neo_msgs2::msg::EmergencyStopState>("emergency_stop_state", 1);
+	topicPub_RelayBoardState = this->create_publisher<neo_msgs2::msg::RelayBoardV2>("state", 1);
+	topicPub_BatteryState = this->create_publisher<sensor_msgs::msg::BatteryState>("battery_state", 1);
+
+	// ---- Service Callbacks ---
+	this->srv_SetEMStop = this->create_service<neo_srvs2::srv::RelayBoardSetEMStop>("set_EMstop", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetEmStop, this, _1, _2));
+	this->srv_UnSetEMStop = this->create_service<neo_srvs2::srv::RelayBoardUnSetEMStop>("unset_EMstop", std::bind(&NeoRelayBoardNode::serviceRelayBoardUnSetEmStop, this, _1, _2));
+	this->srv_SetRelay = this->create_service<neo_srvs2::srv::RelayBoardSetRelay>("set_relay", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetRelay, this, _1, _2));
+	this->srv_StartCharging = this->create_service<std_srvs::srv::Empty>("start_charging", std::bind(&NeoRelayBoardNode::serviceStartCharging, this,_1,_2));
+	this->srv_StopCharging = this->create_service<std_srvs::srv::Empty>("stop_charging", std::bind(&NeoRelayBoardNode::serviceStopCharging, this,_1,_2));
+	this->srv_SetLCDMsg = this->create_service<neo_srvs2::srv::RelayBoardSetLCDMsg>("set_LCD_msg", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetLCDMsg, this, _1, _2));
+
+	if (m_iactive_motors != 0)
+	{
+		topicPub_drives = this->create_publisher<sensor_msgs::msg::JointState>("/drives/joint_states", 1);
+		topicSub_drives = this->create_subscription<trajectory_msgs::msg::JointTrajectory>("/drives/joint_trajectory", 1, std::bind(&NeoRelayBoardNode::getNewVelocitiesFomTopic, this,_1));
+	}
+
+	if (m_bIOBoardActive)
+	{
+		topicPub_IOBoard = this->create_publisher<neo_msgs2::msg::IOBoard>("/ioboard/data", 1);
+		this->srv_SetDigOut = this->create_service<neo_srvs2::srv::IOBoardSetDigOut>("/ioboard/set_digital_output", std::bind(&NeoRelayBoardNode::serviceIOBoardSetDigOut, this, _1, _2));
+	}
+
+	if (m_bUSBoardActive)
+	{
+		topicPub_usBoard = this->create_publisher<neo_msgs2::msg::USBoard>("/usboard/measurements", 1);
+
+		for (int i = 0; i < 16; ++i)
+		{
+			if(m_bUSBoardSensorActive[i]) {
+				topicPub_USRangeSensor[i] = this->create_publisher<sensor_msgs::msg::Range>("/usboard/sensor" + std::to_string(i + 1), 1);
+			}
+		}
+	}
 	
 	return 0;
 }
