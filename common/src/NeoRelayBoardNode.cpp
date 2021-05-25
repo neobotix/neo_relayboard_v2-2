@@ -237,7 +237,6 @@ int NeoRelayBoardNode::init()
 		m_iext_hardware += 2;
 
 	RCLCPP_INFO(this->get_logger(),"Parameters loaded");
-	std::cout<<m_imotor_count<<std::endl;
 	//----------------------------------------OPEN COMPORT---------------------------------------------------------
 
 	m_SerRelayBoard = new RelayBoardClient();
