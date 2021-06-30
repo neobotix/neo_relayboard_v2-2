@@ -94,7 +94,7 @@ int NeoRelayBoardNode::init()
 	if (this->has_parameter("port"))
 	{
 		this->get_parameter("port", m_sComPort);
-		RCLCPP_ERROR(this->get_logger(), "Loaded ComPort parameter from parameter server: %s", m_sComPort.c_str());
+		RCLCPP_INFO(this->get_logger(), "Loaded ComPort parameter from parameter server: %s", m_sComPort.c_str());
 	}
 	else
 	{
