@@ -51,6 +51,7 @@ NeoRelayBoardNode::NeoRelayBoardNode(): Node("neo_relayboard_node")
     this->declare_parameter<float>("battery/design_capacity", 2.0);
     this->declare_parameter<int>("battery/chemistry", 3);
     this->declare_parameter<bool>("log", 0);
+    this->declare_parameter<bool>("Publish_joint_states", 0);
 
     for (int i = 0; i < 8; ++i)
 	{
@@ -79,6 +80,7 @@ NeoRelayBoardNode::NeoRelayBoardNode(): Node("neo_relayboard_node")
 
 	this->get_parameter_or("motor_delay", m_tMotorDelay, 0.0);
 	this->get_parameter_or("trajectory_timeout", m_trajectory_timeout, 1.);
+	this->get_parameter_or("Publish_joint_states", m_JointStates, true);
 
 }
 
@@ -102,13 +104,13 @@ int NeoRelayBoardNode::init()
 		return 1;
 	}
 
-	std::cout << "                                                                     \n";
-	std::cout << "    NN    N  EEEEE   OOOOO   BBBBB    OOOOO   TTTTTTT  I  X   X      \n";
-	std::cout << "    N N   N  E      O     O  B    B  O     O     T     I   X X       \n";
-	std::cout << "    N  N  N  EEEEE  O     O  BBBBB   O     O     T     I    X        \n";
-	std::cout << "    N   N N  E      O     O  B    B  O     O     T     I   X X       \n";
-	std::cout << "    N    NN  EEEEE   OOOOO   BBBBB    OOOOO      T     I  X   X      \n";
-	std::cout << "                                                                     \n";
+	std::cout << "                                                                     "<<std::endl;
+	std::cout << "    NN    N  EEEEE   OOOOO   BBBBB    OOOOO   TTTTTTT  I  X   X      "<<std::endl;
+	std::cout << "    N N   N  E      O     O  B    B  O     O     T     I   X X       "<<std::endl;
+	std::cout << "    N  N  N  EEEEE  O     O  BBBBB   O     O     T     I    X        "<<std::endl;
+	std::cout << "    N   N N  E      O     O  B    B  O     O     T     I   X X       "<<std::endl;
+	std::cout << "    N    NN  EEEEE   OOOOO   BBBBB    OOOOO      T     I  X   X      "<<std::endl;
+	std::cout << "                                                                     "<<std::endl;
 	
 	//---------------------------------------- GET PARAMS -----------------------------------------------------------
 
@@ -398,6 +400,7 @@ int NeoRelayBoardNode::HandleCommunication()
 		{
 			// Do not show message again
 		}
+
 		else if (iRXReturn == RelayBoardClient::RX_UPDATE_MSG) // ok
 		{
 			RCLCPP_INFO(this->get_logger(),"Communicating with RelayBoard");
@@ -423,7 +426,6 @@ int NeoRelayBoardNode::HandleCommunication()
 			// Unknown error
 			RCLCPP_ERROR_STREAM(this->get_logger(),"Unknown error: " << iRXReturn);
 		}
-
 		m_iLastRXReturn = iRXReturn;
 	}
 	else
@@ -735,6 +737,9 @@ bool NeoRelayBoardNode::serviceRelayBoardSetLCDMsg(std::shared_ptr<neo_srvs2::sr
 void NeoRelayBoardNode::PublishJointStates()
 {
 	if (!m_bRelayBoardV2Available)
+		return;
+
+	if(!m_JointStates)
 		return;
 
 	long lEnc[8] = {0, 0, 0, 0, 0, 0, 0, 0};
