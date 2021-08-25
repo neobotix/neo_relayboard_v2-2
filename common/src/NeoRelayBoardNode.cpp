@@ -77,8 +77,8 @@ NeoRelayBoardNode::NeoRelayBoardNode(): Node("neo_relayboard_node")
 
 	this->declare_parameter<double>("motor_delay");
 	this->declare_parameter<double>("trajectory_timeout");
-	this->get_parameter_or("Publish_joint_states", m_JointStates, true);
-
+	this->get_parameter_or("motor_delay", m_tMotorDelay, 0.0);
+	this->get_parameter_or("trajectory_timeout", m_trajectory_timeout, 1.);
 }
 
 NeoRelayBoardNode::~NeoRelayBoardNode()
@@ -124,6 +124,9 @@ int NeoRelayBoardNode::init()
 	// IOBOard Parameter
 	this->get_parameter_or("ioboard/active", m_bIOBoardActive, false);
 
+	// Joint states
+	this->get_parameter_or("Publish_joint_states", m_JointStates, true);
+
 	// USBOard Parameter
 	this->get_parameter_or("usboard/active", m_bUSBoardActive, false);
 	this->get_parameter_or("usboard/sensor1_active", m_bUSBoardSensorActive[0], false);
@@ -149,8 +152,8 @@ int NeoRelayBoardNode::init()
 
 		const std::string parent = "drive" + std::to_string(i + 2) + ".";
 
-		this->get_parameter(parent + "motor_active", m_Drives[i].bmotor_active);
-		this->get_parameter(parent + "homing_active", m_Drives[i].bhoming_active);
+		this->get_parameter_or(parent + "motor_active", m_Drives[i].bmotor_active, false);
+		this->get_parameter_or(parent + "homing_active", m_Drives[i].bhoming_active, false);
 		this->get_parameter_or(parent + "EncIncrPerRevMot", m_Drives[i].iEncIncrPerRevMot, 0);
 		this->get_parameter_or(parent + "VelMeasFrqHz", m_Drives[i].dVelMeasFrqHz, 0.0);
 		this->get_parameter_or(parent + "GearRatio", m_Drives[i].dGearRatio, 0.0);
@@ -165,9 +168,6 @@ int NeoRelayBoardNode::init()
 
 		m_Drives[i].calcRadToIncr();
 	}
-
-	this->get_parameter_or("motor_delay", m_tMotorDelay, 0.0);
-	this->get_parameter_or("trajectory_timeout", m_trajectory_timeout, 1.);
 
 	// Check which motors are active
 	if (m_Drives[0].bmotor_active)
