@@ -58,28 +58,25 @@ NeoRelayBoardNode::NeoRelayBoardNode(): Node("neo_relayboard_node")
 
 		const std::string parent = "drive" + std::to_string(i + 2) + ".";
 
-		this->declare_parameter(parent + "motor_active");
-		this->declare_parameter(parent + "homing_active");
-		this->declare_parameter(parent + "EncIncrPerRevMot");
-		this->declare_parameter(parent + "VelMeasFrqHz");
-		this->declare_parameter(parent + "GearRatio");
-		this->declare_parameter(parent + "BeltRatio");
-		this->declare_parameter(parent + "Sign");
-		this->declare_parameter(parent + "VelMaxEncIncrS");
-		this->declare_parameter(parent + "VelPModeEncIncrS");
-		this->declare_parameter(parent + "AccIncrS2");
-		this->declare_parameter(parent + "DecIncrS2");
-		this->declare_parameter(parent + "Modulo");
-		this->declare_parameter(parent+ "joint_name");
+		this->declare_parameter<bool>(parent + "motor_active");
+		this->declare_parameter<bool>(parent + "homing_active");
+		this->declare_parameter<int>(parent + "EncIncrPerRevMot");
+		this->declare_parameter<double>(parent + "VelMeasFrqHz");
+		this->declare_parameter<double>(parent + "GearRatio");
+		this->declare_parameter<double>(parent + "BeltRatio");
+		this->declare_parameter<int>(parent + "Sign");
+		this->declare_parameter<double>(parent + "VelMaxEncIncrS");
+		this->declare_parameter<double>(parent + "VelPModeEncIncrS");
+		this->declare_parameter<double>(parent + "AccIncrS2");
+		this->declare_parameter<double>(parent + "DecIncrS2");
+		this->declare_parameter<double>(parent + "Modulo");
+		this->declare_parameter<std::string>(parent+ "joint_name");
 
 		m_Drives[i].sName = "Joint999";
 	}
 
-	this->declare_parameter("motor_delay");
-	this->declare_parameter("trajectory_timeout");
-
-	this->get_parameter_or("motor_delay", m_tMotorDelay, 0.0);
-	this->get_parameter_or("trajectory_timeout", m_trajectory_timeout, 1.);
+	this->declare_parameter<double>("motor_delay");
+	this->declare_parameter<double>("trajectory_timeout");
 	this->get_parameter_or("Publish_joint_states", m_JointStates, true);
 
 }
