@@ -748,7 +748,7 @@ void NeoRelayBoardNode::PublishJointStates()
 	static float sfLastPos[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 
 	sensor_msgs::msg::JointState state;
-	state.header.stamp = m_tCurrentTimeStamp - rclcpp::Duration(m_tMotorDelay);
+	state.header.stamp = m_tCurrentTimeStamp - rclcpp::Duration::from_seconds(m_tMotorDelay);
 
 	// Publish Data for all possible Motors
 	state.name.resize(8);
