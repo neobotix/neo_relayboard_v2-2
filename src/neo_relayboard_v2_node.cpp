@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	
 	// get parameters
 	double request_rate;   // [1/s]
-	nh->declare_parameter("request_rate");
+	nh->declare_parameter<double>("request_rate");
 	nh->get_parameter_or("request_rate", request_rate, 25.0);
 
 	// frequency of publishing states (cycle time)
