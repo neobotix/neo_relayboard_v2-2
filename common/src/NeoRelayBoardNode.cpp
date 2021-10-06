@@ -52,6 +52,24 @@ NeoRelayBoardNode::NeoRelayBoardNode(): Node("neo_relayboard_node")
     this->declare_parameter<int>("battery/chemistry", 3);
     this->declare_parameter<bool>("log", 0);
     this->declare_parameter<bool>("Publish_joint_states", 0);
+    this->declare_parameter<bool>("ioboard/active", 0);
+	this->declare_parameter<bool>("usboard/active", 0);
+	this->declare_parameter<bool>("usboard/sensor1_active", 0);
+	this->declare_parameter<bool>("usboard/sensor2_active", 0);
+	this->declare_parameter<bool>("usboard/sensor3_active", 0);
+	this->declare_parameter<bool>("usboard/sensor4_active", 0);
+	this->declare_parameter<bool>("usboard/sensor5_active", 0);
+	this->declare_parameter<bool>("usboard/sensor6_active", 0);
+	this->declare_parameter<bool>("usboard/sensor7_active", 0);
+	this->declare_parameter<bool>("usboard/sensor8_active", 0);
+	this->declare_parameter<bool>("usboard/sensor9_active", 0);
+	this->declare_parameter<bool>("usboard/sensor10_active",0);
+	this->declare_parameter<bool>("usboard/sensor11_active",0);
+	this->declare_parameter<bool>("usboard/sensor12_active",0);
+	this->declare_parameter<bool>("usboard/sensor13_active",0);
+	this->declare_parameter<bool>("usboard/sensor14_active",0);
+	this->declare_parameter<bool>("usboard/sensor15_active",0);
+	this->declare_parameter<bool>("usboard/sensor16_active",0);
 
     for (int i = 0; i < 8; ++i)
 	{
