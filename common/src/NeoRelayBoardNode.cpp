@@ -345,24 +345,24 @@ int NeoRelayBoardNode::init()
 
 	if (m_iactive_motors != 0)
 	{
-		topicPub_drives = this->create_publisher<sensor_msgs::msg::JointState>("/drives/joint_states", 1);
-		topicSub_drives = this->create_subscription<trajectory_msgs::msg::JointTrajectory>("/drives/joint_trajectory", 1, std::bind(&NeoRelayBoardNode::getNewVelocitiesFomTopic, this,_1));
+		topicPub_drives = this->create_publisher<sensor_msgs::msg::JointState>("drives/joint_states", 1);
+		topicSub_drives = this->create_subscription<trajectory_msgs::msg::JointTrajectory>("drives/joint_trajectory", 1, std::bind(&NeoRelayBoardNode::getNewVelocitiesFomTopic, this,_1));
 	}
 
 	if (m_bIOBoardActive)
 	{
-		topicPub_IOBoard = this->create_publisher<neo_msgs2::msg::IOBoard>("/ioboard/data", 1);
-		this->srv_SetDigOut = this->create_service<neo_srvs2::srv::IOBoardSetDigOut>("/ioboard/set_digital_output", std::bind(&NeoRelayBoardNode::serviceIOBoardSetDigOut, this, _1, _2));
+		topicPub_IOBoard = this->create_publisher<neo_msgs2::msg::IOBoard>("ioboard/data", 1);
+		this->srv_SetDigOut = this->create_service<neo_srvs2::srv::IOBoardSetDigOut>("ioboard/set_digital_output", std::bind(&NeoRelayBoardNode::serviceIOBoardSetDigOut, this, _1, _2));
 	}
 
 	if (m_bUSBoardActive)
 	{
-		topicPub_usBoard = this->create_publisher<neo_msgs2::msg::USBoard>("/usboard/measurements", 1);
+		topicPub_usBoard = this->create_publisher<neo_msgs2::msg::USBoard>("usboard/measurements", 1);
 
 		for (int i = 0; i < 16; ++i)
 		{
 			if(m_bUSBoardSensorActive[i]) {
-				topicPub_USRangeSensor[i] = this->create_publisher<sensor_msgs::msg::Range>("/usboard/sensor" + std::to_string(i + 1), 1);
+				topicPub_USRangeSensor[i] = this->create_publisher<sensor_msgs::msg::Range>("usboard/sensor" + std::to_string(i + 1), 1);
 			}
 		}
 	}
