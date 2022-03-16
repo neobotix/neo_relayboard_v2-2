@@ -182,6 +182,7 @@ private:
 	double m_trajectory_timeout = 0;
 	bool is_trajectory_timeout = false;
 	bool m_JointStates;
+	int m_drivesNr;
 
 	// log
 	bool m_bLog = false;	// enables or disables the log for neo_relayboard
