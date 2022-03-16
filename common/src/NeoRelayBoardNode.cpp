@@ -137,7 +137,7 @@ int NeoRelayBoardNode::init()
 	this->get_parameter("battery/chemistry", m_iBatteryChemistry);
 
 	// Logging
-	this->get_parameter("log", m_bLog);
+	this->get_parameter_or("log", m_bLog, false);
 
 	// IOBOard Parameter
 	this->get_parameter_or("ioboard/active", m_bIOBoardActive, false);
