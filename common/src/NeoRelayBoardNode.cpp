@@ -777,9 +777,9 @@ void NeoRelayBoardNode::PublishJointStates()
 	state.header.stamp = m_tCurrentTimeStamp - rclcpp::Duration::from_seconds(m_tMotorDelay);
 
 	// Publish Data for all possible Motors
-	state.name.resize(8);
-	state.position.resize(8);
-	state.velocity.resize(8);
+	state.name.resize(m_drivesNr);
+	state.position.resize(m_drivesNr);
+	state.velocity.resize(m_drivesNr);
 
 	// TODO Joint Names einfügen
 	// for(int i = 0; i<anz_drives; i++)  state.name[i] = joint_names[i];
