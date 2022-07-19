@@ -664,7 +664,10 @@ void NeoRelayBoardNode::PublishEmergencyStopStates()
 	};
 
 	EM_msg.emergency_state = m_iEM_stop_state;
-	EM_msg.software_stop = m_bSoftware_EM_stop;
+
+	if (m_iEM_stop_state == 1 && m_bSoftware_EM_stop) {
+		EM_msg.software_stop = true;
+	}	
 
 	topicPub_isEmergencyStop->publish(EM_msg);
 }
