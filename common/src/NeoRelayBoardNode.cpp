@@ -699,6 +699,7 @@ bool NeoRelayBoardNode::serviceRelayBoardUnSetEmStop(const std::shared_ptr<neo_s
 		m_SerRelayBoard->unsetSoftEMStop();
 		RCLCPP_INFO(this->get_logger(),"Released SoftEMStop");
 		res->success = true;
+		m_bSoftware_EM_stop = false;
 	}
 	return true;
 }
