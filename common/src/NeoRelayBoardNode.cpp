@@ -664,6 +664,7 @@ void NeoRelayBoardNode::PublishEmergencyStopStates()
 	};
 
 	EM_msg.emergency_state = m_iEM_stop_state;
+	EM_msg.software_stop = m_bSoftware_EM_stop;
 
 	topicPub_isEmergencyStop->publish(EM_msg);
 }
@@ -682,6 +683,7 @@ bool NeoRelayBoardNode::serviceRelayBoardSetEmStop(const std::shared_ptr<neo_srv
 		m_SerRelayBoard->setSoftEMStop();
 		RCLCPP_INFO(this->get_logger(),"Enabled SoftEMStop");
 		res->success = true;
+		m_bSoftware_EM_stop = true;
 	}
 	return true;
 }
@@ -697,6 +699,7 @@ bool NeoRelayBoardNode::serviceRelayBoardUnSetEmStop(const std::shared_ptr<neo_s
 		m_SerRelayBoard->unsetSoftEMStop();
 		RCLCPP_INFO(this->get_logger(),"Released SoftEMStop");
 		res->success = true;
+		m_bSoftware_EM_stop = false;
 	}
 	return true;
 }
