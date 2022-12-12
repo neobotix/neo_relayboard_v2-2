@@ -334,6 +334,7 @@ int NeoRelayBoardNode::init()
 	this->srv_SetEMStop = this->create_service<neo_srvs2::srv::RelayBoardSetEMStop>("set_EMstop", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetEmStop, this, _1, _2));
 	this->srv_UnSetEMStop = this->create_service<neo_srvs2::srv::RelayBoardUnSetEMStop>("unset_EMstop", std::bind(&NeoRelayBoardNode::serviceRelayBoardUnSetEmStop, this, _1, _2));
 	this->srv_SetRelay = this->create_service<neo_srvs2::srv::RelayBoardSetRelay>("set_relay", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetRelay, this, _1, _2));
+	this->srv_SetRelay3 = this->create_service<neo_srvs2::srv::RelayBoardSetRelay>("set_relay3", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetRelay3, this, _1, _2));
 	this->srv_StartCharging = this->create_service<std_srvs::srv::Empty>("start_charging", std::bind(&NeoRelayBoardNode::serviceStartCharging, this,_1,_2));
 	this->srv_StopCharging = this->create_service<std_srvs::srv::Empty>("stop_charging", std::bind(&NeoRelayBoardNode::serviceStopCharging, this,_1,_2));
 	this->srv_SetLCDMsg = this->create_service<neo_srvs2::srv::RelayBoardSetLCDMsg>("set_LCD_msg", std::bind(&NeoRelayBoardNode::serviceRelayBoardSetLCDMsg, this, _1, _2));
@@ -702,6 +703,28 @@ bool NeoRelayBoardNode::serviceRelayBoardUnSetEmStop(const std::shared_ptr<neo_s
 }
 
 bool NeoRelayBoardNode::serviceRelayBoardSetRelay(std::shared_ptr<neo_srvs2::srv::RelayBoardSetRelay::Request> req,
+												  std::shared_ptr<neo_srvs2::srv::RelayBoardSetRelay::Response> res)
+{
+	if (!m_bRelayBoardV2Available)
+	{
+		res->success = false;
+		return false;
+	}
+	else
+	{
+		// check if Relay ID is valid
+		if (req->id >= 0 && req->id < 4)
+		{
+			m_SerRelayBoard->setRelayBoardDigOut(req->id, req->state);
+			res->success = true;
+			return true;
+		}
+	}
+	res->success = false;
+	return false;
+}
+
+bool NeoRelayBoardNode::serviceRelayBoardSetRelay3(std::shared_ptr<neo_srvs2::srv::RelayBoardSetRelay::Request> req,
 												  std::shared_ptr<neo_srvs2::srv::RelayBoardSetRelay::Response> res)
 {
 	if (!m_bRelayBoardV2Available)

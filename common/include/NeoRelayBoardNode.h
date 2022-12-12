@@ -100,6 +100,7 @@ public:
 	bool serviceRelayBoardUnSetEmStop(std::shared_ptr<neo_srvs2::srv::RelayBoardUnSetEMStop::Request>, std::shared_ptr<neo_srvs2::srv::RelayBoardUnSetEMStop::Response> res);
 	bool serviceRelayBoardSetRelay(std::shared_ptr<neo_srvs2::srv::RelayBoardSetRelay::Request>, std::shared_ptr<neo_srvs2::srv::RelayBoardSetRelay::Response> res);
 	bool serviceRelayBoardSetLCDMsg(std::shared_ptr<neo_srvs2::srv::RelayBoardSetLCDMsg::Request>, std::shared_ptr<neo_srvs2::srv::RelayBoardSetLCDMsg::Response> res);
+	bool serviceRelayBoardSetRelay3(std::shared_ptr<neo_srvs2::srv::RelayBoardSetRelay::Request>, std::shared_ptr<neo_srvs2::srv::RelayBoardSetRelay::Response> res);
 	bool serviceStartCharging(std::shared_ptr<std_srvs::srv::Empty::Request>, std::shared_ptr<std_srvs::srv::Empty::Response> res);
 	bool serviceStopCharging(std::shared_ptr<std_srvs::srv::Empty::Request>, std::shared_ptr<std_srvs::srv::Empty::Response> res);
 	bool serviceIOBoardSetDigOut(std::shared_ptr<neo_srvs2::srv::IOBoardSetDigOut::Request>, std::shared_ptr<neo_srvs2::srv::IOBoardSetDigOut::Response> res);
@@ -120,6 +121,7 @@ private:
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr srv_StartCharging;
 	rclcpp::Service<std_srvs::srv::Empty>::SharedPtr srv_StopCharging;
 	rclcpp::Service<neo_srvs2::srv::RelayBoardSetRelay>::SharedPtr srv_SetRelay;
+	rclcpp::Service<neo_srvs2::srv::RelayBoardSetRelay>::SharedPtr srv_SetRelay3;
 	rclcpp::Service<neo_srvs2::srv::RelayBoardSetLCDMsg>::SharedPtr srv_SetLCDMsg;
 	rclcpp::Service<neo_srvs2::srv::RelayBoardSetEMStop>::SharedPtr srv_SetEMStop;
 	rclcpp::Service<neo_srvs2::srv::RelayBoardUnSetEMStop>::SharedPtr srv_UnSetEMStop;
