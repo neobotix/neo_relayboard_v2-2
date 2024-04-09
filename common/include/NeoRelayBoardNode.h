@@ -154,6 +154,7 @@ private:
 	// ---- USBoard ------------
 	bool m_bUSBoardActive = false;
 	bool m_bUSBoardSensorActive[16] = {};
+	bool m_bUSS5 = false;
 
 	std::string m_sComPort;
 	RelayBoardClient *m_SerRelayBoard = 0;

@@ -70,6 +70,7 @@ NeoRelayBoardNode::NeoRelayBoardNode(): Node("neo_relayboard_node")
 	this->declare_parameter<bool>("usboard.sensor14_active",0);
 	this->declare_parameter<bool>("usboard.sensor15_active",0);
 	this->declare_parameter<bool>("usboard.sensor16_active",0);
+	this->declare_parameter<bool>("usboard.uss5", 0);
 	this->declare_parameter<int>("number_of_drives", 8);
 	this->declare_parameter<double>("motor_delay", 0.0);
 	this->declare_parameter<double>("trajectory_timeout", 0.0);
@@ -126,6 +127,7 @@ int NeoRelayBoardNode::init()
 
 	// USBOard Parameter
 	this->get_parameter("usboard.active", m_bUSBoardActive);
+	this->get_parameter("usboard.uss5", m_bUSS5);
 	this->get_parameter("usboard.sensor1_active", m_bUSBoardSensorActive[0]);
 	this->get_parameter("usboard.sensor2_active", m_bUSBoardSensorActive[1]);
 	this->get_parameter("usboard.sensor3_active", m_bUSBoardSensorActive[2]);
@@ -352,6 +354,9 @@ int NeoRelayBoardNode::init()
 
 	if (m_bUSBoardActive)
 	{
+		if(m_bUSS5) {
+			RCLCPP_INFO(this->get_logger(),"USS5 sensors are present");
+		}
 		topicPub_usBoard = this->create_publisher<neo_msgs2::msg::USBoard>("usboard/measurements", 1);
 
 		for (int i = 0; i < 16; ++i)
@@ -877,9 +882,16 @@ void NeoRelayBoardNode::PublishUSBoardData()
 		sensor_msgs::msg::Range us_range_msg;
 		us_range_msg.header = header;
 		us_range_msg.radiation_type = 0;				// uint8   => Enum ULTRASOUND=0; INFRARED=1
-		us_range_msg.field_of_view = 1.05;				// float32 [rad]
-		us_range_msg.min_range = 0.1;					// float32 [m]
-		us_range_msg.max_range = 1.2;					// float32 [m]
+		if (m_bUSS5) {
+			us_range_msg.field_of_view = 2.3;				// float32 [rad]
+			us_range_msg.min_range = 0.2;					// float32 [m]
+			us_range_msg.max_range = 3.0;					// float32 [m]
+		} else {
+			us_range_msg.field_of_view = 1.05;				// float32 [rad]
+			us_range_msg.min_range = 0.1;					// float32 [m]
+			us_range_msg.max_range = 1.2;					// float32 [m]
+		}
+		
 		us_range_msg.range = usBoard.sensor[i] / 100.f; // float32 [cm] => [m]
 
 		topicPub_USRangeSensor[i]->publish(us_range_msg);
