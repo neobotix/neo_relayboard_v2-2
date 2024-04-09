@@ -354,6 +354,9 @@ int NeoRelayBoardNode::init()
 
 	if (m_bUSBoardActive)
 	{
+		if(m_bUSS5) {
+			RCLCPP_INFO(this->get_logger(),"USS5 sensors are present");
+		}
 		topicPub_usBoard = this->create_publisher<neo_msgs2::msg::USBoard>("usboard/measurements", 1);
 
 		for (int i = 0; i < 16; ++i)
