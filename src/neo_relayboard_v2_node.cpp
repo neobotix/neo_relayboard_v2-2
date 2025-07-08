@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 	if (nh->init() != 0)
 			return 1;
 
-	while (rclcpp::ok())
+	while (rclcpp::ok() && !nh->shouldShutdown())
 	{
 		// initialize node
 		
@@ -106,6 +106,12 @@ int main(int argc, char **argv)
 		loop_rate.sleep();
 	}
 
+	if (nh->shouldShutdown()) {
+		usleep(500000);
+		RCLCPP_INFO(nh->get_logger(),"-----------SHUTDOWN Signal from RelayBoardV2----------");
+		rclcpp::shutdown();
+		system("sudo halt -p");
+	}
 
 	return 0;
 }
