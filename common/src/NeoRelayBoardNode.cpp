@@ -528,11 +528,14 @@ void NeoRelayBoardNode::PublishRelayBoardState()
 		if (iState & 0x400)
 		{
 			RCLCPP_INFO(this->get_logger(),"-----------SHUTDOWN Signal from RelayBoardV2----------");
-			rclcpp::shutdown();
-			usleep(2000);
-			system("sudo halt -p");
+			shutdown_ = true;
 		}
 	}
+}
+
+bool NeoRelayBoardNode::shouldShutdown()
+{
+	return shutdown_;
 }
 
 void NeoRelayBoardNode::PublishBatteryState()
