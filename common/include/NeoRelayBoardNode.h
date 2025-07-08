@@ -103,6 +103,7 @@ public:
 	bool serviceStartCharging(std::shared_ptr<std_srvs::srv::Empty::Request>, std::shared_ptr<std_srvs::srv::Empty::Response> res);
 	bool serviceStopCharging(std::shared_ptr<std_srvs::srv::Empty::Request>, std::shared_ptr<std_srvs::srv::Empty::Response> res);
 	bool serviceIOBoardSetDigOut(std::shared_ptr<neo_srvs2::srv::IOBoardSetDigOut::Request>, std::shared_ptr<neo_srvs2::srv::IOBoardSetDigOut::Response> res);
+	bool shouldShutdown();
 
 private:
 
@@ -185,6 +186,8 @@ private:
 	bool m_JointStates;
 	int m_drivesNr;
 	bool m_bSoftware_EM_stop = false;
+	bool shutdown_ = false;
+
 
 	// log
 	bool m_bLog = false;	// enables or disables the log for neo_relayboard
