@@ -781,8 +781,8 @@ bool RelayBoardClient::getKeyState(int ID)
 	/* KEY PAD BIT CODED:
      * LSB : Info Taste gedrueckt
      * Bit 2: Home Taste gedrueckt
-     * Bit 3: Start Taste gedrueckt
-     * Bit 4: Stop Taste gedrueckt
+     * Bit 3: Stop Taste gedrueckt
+     * Bit 4: Start Taste gedrueckt
      * Bit 5: Bremsen loesen Taste gedrueckt
      * Bit 6: On Demand Key 1
      * Bit 7: On Demand Key 2
@@ -806,10 +806,10 @@ bool RelayBoardClient::getKeyState(int ID)
 		return (iButtons & 1); // Info Button
 	case KEY_HOME:
 		return (iButtons & 2); // Home Button
-	case KEY_START:
-		return (iButtons & 4); // Start Button
 	case KEY_STOP:
-		return (iButtons & 8); // Stop Button
+		return (iButtons & 4); // Stop Button
+	case KEY_START:
+		return (iButtons & 8); // Start Button
 	case KEY_RELEASE_BRAKE:
 		return (iButtons & 16); // release brake button
 	case KEY_ON_DEMAND_1:
